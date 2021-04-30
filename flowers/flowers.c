@@ -2,28 +2,12 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define ANSI_RED      "\x1b[31m"
-#define ANSI_GREEN    "\x1b[32m"
-#define ANSI_YELLOW   "\x1b[33m"
-#define ANSI_BLUE     "\x1b[34m"
-#define ANSI_MAGENTA  "\x1b[35m"
-#define ANSI_CYAN     "\x1b[36m"
-#define ANSI_WHITE    "\x1b[37m"
-#define ANSI_RED2     "\x1b[91m"
-#define ANSI_GREEN2   "\x1b[92m"
-#define ANSI_YELLOW2  "\x1b[93m"
-#define ANSI_BLUE2    "\x1b[94m"
-#define ANSI_MAGENTA2 "\x1b[95m"
-#define ANSI_CYAN2    "\x1b[96m"
-#define ANSI_WHITE2   "\x1b[97m"
-#define ANSI_RESET    "\x1b[0m"
-
 int setWithBounds(char, int, int);
 int checkBounds(int, int, int, int);
 void addFlower(int, int, char**);
 void addOutline(int, int, char**);
 void kill2Darray(int, char**);
-void print2Darray(int, int, char**);
+void print2Darray(int, int, char**, char*);
 
 int main(int argc, char* argv[]) {
 	
@@ -46,16 +30,52 @@ int main(int argc, char* argv[]) {
 		}
 	}
 	
-	printf(ANSI_YELLOW "How many flowers do you want?\n" ANSI_RESET);
+	printf("\x1b[33mHow many flowers do you want?\n\x1b[0m");
 	int flowers = 0;
 	scanf("%d", &flowers);
 	for (int f = 0; f < flowers; f++){
 		addFlower(sizeX, sizeY, canvas);
 	}
 	
+	char color[] = "\x1b[97m";
+	int choice = 0;
+	//big ass, ugly print statements go brrr
+	printf("\x1b[92mWhat colour do you want the flowers to be\n\t\x1b[97m0 - White\n\t\x1b[91m1 - Red\n\t\x1b[93m2 - Yellow\n\t\x1b[96m3 - Cyan\n\t\x1b[95m4 - Magenta\n\t\x1b[94m5 - Blue\n\x1b[0m");
+	scanf("%d", &choice);
+	while (choice < 0 || choice > 5) {
+		printf("\x1b[31mBad Value: \x1b[92mWhat colour do you want the flowers to be\n\t\x1b[97m0 - White\n\t\x1b[91m1 - Red\n\t\x1b[93m2 - Yellow\n\t\x1b[96m3 - Cyan\n\t\x1b[95m4 - Magenta\n\t\x1b[94m5 - Blue\n\x1b[0m");
+		scanf("%d", &choice);
+	}
+	switch (choice) {
+		//white
+		case 0 :
+			strcpy(color, "\x1b[97m");
+			break;
+		//Red
+		case 1 :
+			strcpy(color, "\x1b[91m");
+			break;
+		//Yellow
+		case 2 :
+			strcpy(color, "\x1b[93m");
+			break;
+		//Cyan
+		case 3 :
+			strcpy(color, "\x1b[96m");
+			break;
+		//Magenta
+		case 4 :
+			strcpy(color, "\x1b[95m");
+			break;
+		//Blue
+		case 5 :
+			strcpy(color, "\x1b[94m");
+			break;
+	}
+	
 	addOutline(sizeX, sizeY, canvas);
 	
-	print2Darray(sizeX, sizeY, canvas);
+	print2Darray(sizeX, sizeY, canvas, color);
 	
 	kill2Darray(sizeY, canvas);
 	
@@ -69,10 +89,10 @@ int setWithBounds(char varName, int lower, int upper) {
 		lower = upper; // overwrite lower with upper
 		upper = input; // set upper to lower's value in temp
 	}
-	printf(ANSI_MAGENTA "Enter a number within " ANSI_CYAN "%d" ANSI_MAGENTA " to " ANSI_CYAN "%d " ANSI_MAGENTA "for " ANSI_GREEN "%c " ANSI_MAGENTA ":" ANSI_RESET "\n", lower, upper, varName);
+	printf("\x1b[35mEnter a number within \x1b[36m%d\x1b[35m to \x1b[36m%d \x1b[35mfor \x1b[32m%c \x1b[35m:\x1b[0m\n", lower, upper, varName);
 	scanf("%d", &input);
 	while (input < lower || input > upper) {
-		printf(ANSI_RED "Bad Value: " ANSI_MAGENTA "Enter a number within " ANSI_CYAN "%d" ANSI_MAGENTA " to " ANSI_CYAN "%d " ANSI_MAGENTA "for " ANSI_GREEN "%c " ANSI_MAGENTA ":" ANSI_RESET "\n", lower, upper, varName);
+		printf("\x1b[31mBad Value: \x1b[95mEnter a number within \x1b[36m%d\x1b[35m to \x1b[36m%d \x1b[35mfor \x1b[32m%c \x1b[35m:\x1b[0m\n", lower, upper, varName);
 		scanf("%d", &input);
 	}
 	return input;
@@ -144,40 +164,47 @@ void addOutline(int sizeX, int sizeY, char** canvas) {
 	canvas[sizeY-1][sizeX-1] = '.';
 }
 
-void print2Darray (int sizeX, int sizeY, char** array) {
+void print2Darray (int sizeX, int sizeY, char** array, char* color) {
 
 	for (int y = 0; y < sizeY; y++) {
 		for (int x = 0; x < sizeX; x++) {
 			char current = array[y][x];
 			switch (current) {
+				//The middle of the flower
 				case 'O' : 
-					printf(ANSI_YELLOW "%c" ANSI_RESET, current);
+					printf("\x1b[33m%c\x1b[0m", current);
 					break;
+				//The upper left/bottom right petal
 				case '\\' : 
-					printf(ANSI_WHITE2 "%c" ANSI_RESET, current);
+					printf("%s%c\x1b[0m", color, current);
 					break;
+				//can be either the outline or the top/bottom petal
 				case '|' : 
 					if (x != 0 && x != sizeX-1) {
-						printf(ANSI_WHITE2 "%c" ANSI_RESET, current);
+						printf("%s%c\x1b[0m", color, current);
 					} else {
-						printf(ANSI_RED2 "%c" ANSI_RESET, current);
+						printf("\x1b[31m%c\x1b[0m", current);
 					}
 					break;
+				//The upper right/bottom left petal
 				case '/' : 
-					printf(ANSI_WHITE2 "%c" ANSI_RESET, current);
+					printf("%s%c\x1b[0m", color, current);
 					break;
+				//Either the outline or the right/left petal
 				case '-' : 
 					if (y != 0 && y != sizeY-1) {
-						printf(ANSI_WHITE2 "%c" ANSI_RESET, current);
+						printf("%s%c\x1b[0m", color, current);
 					} else {
-						printf(ANSI_RED2 "%c" ANSI_RESET, current);
+						printf("\x1b[31m%c\x1b[0m", current);
 					}
 					break;
+				//The corners of the outline
 				case '.' : 
-					printf(ANSI_RED2 "%c" ANSI_RESET, current);
+					printf("\x1b[31m%c\x1b[0m", current);
 					break;
+				//Everything else is assumed to be grass
 				default  :
-					printf(ANSI_GREEN2 "%c" ANSI_RESET, current);
+					printf("\x1b[92m%c\x1b[0m", current);
 			}
 		}
 		printf("\n");
