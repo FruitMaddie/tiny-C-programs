@@ -19,8 +19,8 @@ int main(int argc, char* argv[]) {
 	int sizeX = 10;
 	int sizeY = 10;
 	
-	sizeX = setWithBounds('X', 1, 255);
-	sizeY = setWithBounds('Y', 1, 255);
+	sizeX = setWithBounds('X', 1, 9999);
+	sizeY = setWithBounds('Y', 1, 9999);
 	
 	canvas = (char**) malloc(sizeof(char*) * sizeY);
 	
@@ -77,6 +77,20 @@ int main(int argc, char* argv[]) {
 	addOutline(sizeX, sizeY, canvas);
 	
 	print2Darray(sizeX, sizeY, canvas, color);
+	
+	char filePrompt = 'n';
+	printf("\x1b[33mDo you want a copy of the field (saved as flowers.txt)?: Y/n\n\x1b[0m");
+	scanf(" %c", &filePrompt);
+	if (filePrompt == 'Y' || filePrompt == 'y') {
+		FILE * outputFile = fopen("flowers.txt", "w");
+		for (int y = 0; y < sizeY; y++) {
+			for (int x = 0; x < sizeX; x++) {
+				fprintf(outputFile, "%c", canvas[y][x]);
+			}
+			fprintf(outputFile, "\n");
+		}
+		fclose(outputFile);
+	}
 	
 	kill2Darray(sizeY, canvas);
 	
